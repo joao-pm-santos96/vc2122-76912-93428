@@ -522,7 +522,7 @@ depth_all = baseRT*FocalLength(1)./disp_all;
 
 % Load idealized binary replication of the Kinect dot pattern -------------
 if isLoadPattern 
-    load('default_load_files\kinect_pattern_3x3.mat')
+    load('default_load_files/kinect_pattern_3x3.mat')
     % Check if depth range provides enough coverage for reference images
     if dOff_min-dOff_max > size(dotPattern,2)/3
         error(sprintf('Depth range too large for default dot pattern in order to achieve no pattern overlap.\nHint: Try a minimum depth of at least 204 mm.'))

@@ -128,7 +128,7 @@ end
 
 % Load idealized binary replication of the Kinect dot pattern -------------
 if isLoadPattern 
-    load('default_load_files\kinect_pattern_3x3.mat')
+    load('default_load_files/kinect_pattern_3x3.mat')
 else
     % Force horizontal lines to be epipolar rectified 
     if mod(size(dotPattern,1),2) == 0

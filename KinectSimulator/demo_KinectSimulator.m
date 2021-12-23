@@ -3,7 +3,7 @@ close all
 
 % Add opcodemesh folders
 folder_path = pwd;
-path_opcodemesh = [folder_path '\opcodemesh'];
+path_opcodemesh = [folder_path '/opcodemesh'];
 if isempty(strfind(path,path_opcodemesh))
     disp('Adding opcodemesh path...\n')
     addpath(genpath(path_opcodemesh))

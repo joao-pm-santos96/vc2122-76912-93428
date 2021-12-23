@@ -461,7 +461,7 @@ corrCol = (corrWind(2)-1)/2;
 dOff_min = (baseRT*FocalLength(1)/ImgRng(1));
 dOff_max = (baseRT*FocalLength(1)/ImgRng(2));
 if isLoadPattern 
-    load('default_load_files\kinect_pattern_3x3.mat')
+    load('default_load_files/kinect_pattern_3x3.mat')
     % Check if depth range provides enough coverage for reference images
     if dOff_min-dOff_max > size(dotPattern,2)/3
         warning('Depth range too large for default dot pattern in order to achieve no pattern overlap.')
