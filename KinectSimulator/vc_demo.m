@@ -9,38 +9,31 @@ if ~contains(path,path_opcodemesh)
     addpath(genpath(path_opcodemesh))
 end
 
-%% DEMO BOX GRID ==========================================================
-load('example_CAD/BoxGrid.mat')
+%% DEMO TEAPOT ============================================================
+load('example_CAD/Teapot.mat')
 
-box_width = 96;  % mm
-box_depth = 54;  % mm
-wallDist  = 854; % mm
+% Shift CAD model to further depth
+vertex_teapot = vertex;
+vertex_teapot(3,:) = vertex_teapot(3,:) + 600;
+face_teapot = face;
+norm_teapot = normalf;
 
-% Scale size of box and shift grid to further depth
-vertex_grid = vertex;
-vertex_grid(1:2,:) = vertex_grid(1:2,:).*box_width;
-vertex_grid(3,:) = vertex_grid(3,:).*box_depth + wallDist-box_depth;
-face_grid = face;
-norm_grid = normalf;
-GridRng = [min(vertex_grid(3,:)) max(vertex_grid(3,:))];
+[a,b,c] = KinectSimulator_IR(vertex_teapot,face_teapot,norm_teapot,...
+    'default','default','default','max','imgrng',[400 1000],...
+    'window',[7 9],'refine',10,'displayIR','off');
 
-[a,b,c] = KinectSimulator_IR(vertex_grid,face_grid,norm_grid); 
-
-close all
 figure, imshow(a)
 figure, imshow(b)
 figure, imshow(c)
 
 
-return
-
-
-DpthImg = KinectSimulator_Depth(vertex_xbox,face_xbox,norm_xbox)%,...
-    %'simple','default','default',[],'imgrng',[200 1000],'subray',[5 9]);
-
-
-
-
+DpthImg = KinectSimulator_Depth(vertex_teapot,face_teapot,norm_teapot,...
+    'default','default','default','max','imgrng',[400 1000],...
+    'window',[9 9],'refine',10,'displayIR','off');
 figure, imshow(DpthImg,[])
-title('Noisy depth image of xbox controller in front of nothing')
+title('Noisy depth image of teapot in front of flat wall')
 drawnow
+
+
+
+return
