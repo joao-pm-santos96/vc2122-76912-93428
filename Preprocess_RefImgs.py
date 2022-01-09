@@ -166,7 +166,6 @@ def Preprocess_RefImgs(model='default'):
     vertPixLeft_T = np.subtract(np.divide(ImgSizeDot[0],2),0.5)
     horzPixLeft_T = np.subtract(np.divide(ImgSizeDot[1],2),(0.5-pixShftLeft_T))
 
-    
     # Adjust subscript value to sensor coordinate system values
     spix_x = np.subtract(horzPixLeft_T, np.add(jpix_x, adjColShift))
     spix_y = np.subtract(vertPixLeft_T, np.add(jpix_y, adjRowShift))
@@ -178,10 +177,6 @@ def Preprocess_RefImgs(model='default'):
 
     coords = np.column_stack((X_T, Y_T, Z_T))
     XYZ_T = np.linalg.norm(coords, axis=1)
-    # aux1 = np.power(X_T, 2)
-    # aux2 = np.power(Y_T, 2)
-    # aux3 = np.power(Z_T, 2)
-    # XYZ_T = np.sqrt(np.sum([aux1, aux2, aux3],axis=0))
 
     # Find surface normal for all intersecting dots
     sn_T = np.vstack((np.zeros(X_T.shape),
@@ -224,8 +219,6 @@ def Preprocess_RefImgs(model='default'):
         if idisp == 0:
             # Compute reference images where IR dots split with left pixel
             IR_ref_left = np.zeros(dotAdd.shape)
-            IR_ref_left[dotIndxLeft] = intensity_T[indxLeft]
-
 
 
 
