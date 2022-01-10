@@ -72,26 +72,26 @@ def Preprocess_RefImgs(model='default'):
 
     # TODO improve performance
     ipix = 0
-    for ipix_col in range(ImgRes[1]):
-        for ipix_row in range(ImgRes[0]):
+    # for ipix_col in range(ImgRes[1]):
+    #     for ipix_row in range(ImgRes[0]):
 
-            # Determine indices for correlation window
-            row_aux = np.arange(ipix_row, ipix_row+corrWind[0])
-            row_now = np.tile(row_aux, (corrWind[0],1)).T
+    #         # Determine indices for correlation window
+    #         row_aux = np.arange(ipix_row, ipix_row+corrWind[0])
+    #         row_now = np.tile(row_aux, (corrWind[0],1)).T
 
-            col_aux = np.arange(ipix_col, ipix_col+corrWind[1])
-            col_now = np.tile(col_aux, (corrWind[1],1))
+    #         col_aux = np.arange(ipix_col, ipix_col+corrWind[1])
+    #         col_now = np.tile(col_aux, (corrWind[1],1))
 
-            row_now = row_now.reshape((-1,1), order='A')
-            col_now = col_now.reshape((-1,1), order='F')
+    #         row_now = row_now.reshape((-1,1), order='A')
+    #         col_now = col_now.reshape((-1,1), order='F')
 
-            ind_now = np.add(row_now, np.multiply(np.subtract(col_now,1),ImgResPad[0]))
+    #         ind_now = np.add(row_now, np.multiply(np.subtract(col_now,1),ImgResPad[0]))
 
-            # Store values
-            IR_ind[:,ipix] = ind_now[:,0]
-            ipix += 1
+    #         # Store values
+    #         IR_ind[:,ipix] = ind_now[:,0]
+    #         ipix += 1
 
-    IR_ind = np.uint32(IR_ind.clip(min=0))
+    # IR_ind = np.uint32(IR_ind.clip(min=0))
 
     # Preprocess reference IR images
     # Determine horizontal and vertical focal lengths
@@ -219,6 +219,25 @@ def Preprocess_RefImgs(model='default'):
         if idisp == 0:
             # Compute reference images where IR dots split with left pixel
             IR_ref_left = np.zeros(dotAdd.shape)
+            np.put(IR_ref_left.T, dotIndxLeft, intensity_T[indxLeft])
+            IR_ref_left = (IR_ref_left[rowRange,:])[:,(colRange+idisp)]
+
+            IR_ref_left = np.multiply(np.repeat(IR_ref_main[:,:,np.newaxis], nlev-1, axis=2), leftMain) + \
+                np.multiply(np.repeat(IR_ref_left[:,:,np.newaxis], nlev-1, axis=2), leftSplt)
+
+            # Store reference images
+            IR_ref[:,nlev:2*nlev-1,idisp] = np.reshape(IR_ref_left, (IR_ref.shape[0], nlev-1))
+                
+            
+
+
+
+
+
+
+
+
+
 
 
 
