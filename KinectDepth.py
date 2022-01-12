@@ -469,11 +469,11 @@ class KinectDepth:
 
         # Add columns of dot pattern to left and right side based on disparity equation
         min_disparity = np.ceil((self._base_rt*self._focal_length[0])/self._min_reference_depth)
-        max_disparity = np.floor((self._base_rt*self._focal_length[0])/self._max_reference_depth)
+        # max_disparity = np.floor((self._base_rt*self._focal_length[0])/self._max_reference_depth)
 
         # Number of cols cannot exceed size of dot pattern (for simplicity of coding)
-        pix_shift_left = np.min([self._dot_pattern_size[1], np.max([0, np.floor((self._resolution(1)-self._dot_pattern_size(1))/2)+1+min_disparity+self._corr_col])])
-        pix_shift_right = np.min([self._dot_pattern_size[1], np.max([0, np.floor((self._resolution(1)-self._dot_pattern_size(1))/2)+1-min_disparity+self._corr_col])])
+        # pix_shift_left = np.min([self._dot_pattern_size[1], np.max([0, np.floor((self._resolution(1)-self._dot_pattern_size(1))/2)+1+min_disparity+self._corr_col])])
+        # pix_shift_right = np.min([self._dot_pattern_size[1], np.max([0, np.floor((self._resolution(1)-self._dot_pattern_size(1))/2)+1-min_disparity+self._corr_col])])
 
         # Generage reference image of entire IR pattern projection
         
