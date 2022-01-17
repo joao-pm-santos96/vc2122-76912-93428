@@ -111,32 +111,16 @@ if __name__ == '__main__':
     # main()
 
     c = np.load('cloud.npz')['cloud']
-  
-
-    # d = c / np.max(c) * 255
-
-    # e = cv2.cvtColor(d.astype(np.uint8), cv2.COLOR_GRAY2RGB)
-    # depth = o3d.geometry.Image(e)
-
-    # exit(0)
 
 
-  
+    x = np.ascontiguousarray(c, dtype=np.float32)    
+    depth = o3d.geometry.Image(x)
+
+
+
+
     intrinsic = o3d.camera.PinholeCameraIntrinsic() # TODO set them
-
-    # input_array = (c).astype('float32').tobytes()
-    # input_array = np.array(c, dtype=np.float_).tobytes()
-    # depth = o3d.geometry.Image(input_array)
-
-
-
-    # ola = o3d.utility.DoubleVector(c.reshape(-1))
-    depth = o3d.geometry.Image(c)
-    
-
-
-
-
+    intrinsic.set_intrinsics(640, 480, 570, 570, 1, 1)
     pcd = o3d.geometry.PointCloud.create_from_depth_image(depth, intrinsic, depth_scale=1)
 
     # pcd = geometry.create_point_cloud_from_depth_image(depth, intrinsic)
