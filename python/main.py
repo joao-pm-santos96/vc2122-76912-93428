@@ -7,6 +7,7 @@
 IMPORTS
 """
 import os
+import argparse
 import open3d as o3d
 import numpy as np
 import scipy.io as sio
@@ -182,9 +183,13 @@ if __name__ == '__main__':
 
     configLogger()
 
+    parser = argparse.ArgumentParser(description='Build point clouds simulating the Kinect procedure.')
+    parser.add_argument('-f', '--file', type=str, help='File (.npz) containing the object data.')
+    args = parser.parse_args()
+
     kinect = KinectSimulator()    
     
-    kinect.loadNpFiles('Wall60deg.npz')
+    kinect.loadNpFiles(args.file)
     c = kinect.computeDepthMap()
 
     kinect.displayDepthMap(c, delay=1)
