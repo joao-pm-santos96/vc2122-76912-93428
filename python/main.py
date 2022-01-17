@@ -57,20 +57,34 @@ class KinectSimulator:
 
         logger.info('Kinect Simulator ready')
 
-    def loadFiles(self, folder='./'):
+    def loadMatFiles(self, folder='./'):
 
-        self.IR_bin = sio.loadmat(os.path.join(folder, './IrBin.mat'))['IR_bin']
+        self.IR_bin = sio.loadmat(os.path.join(folder,'./IrBin.mat'))['IR_bin']
         logger.debug(f'Loaded IR_bin from {folder}')
 
         self.IR_now = sio.loadmat(os.path.join(folder, './IrNow.mat'))['IR_now']
         logger.debug(f'Loaded IR_now from {folder}')
 
-        RefImgs = sio.loadmat(os.path.join(folder, './RefImgs.mat'))
+        RefImgs = sio.loadmat('./RefImgs.mat')
         self.IR_ref = RefImgs['IR_ref']
-        logger.debug(f'Loaded IR_ref from {folder}')
+        logger.debug(f'Loaded IR_ref')
 
         self.IR_ind = RefImgs['IR_ind'] - 1
-        logger.debug(f'Loaded IR_ind from {folder}')
+        logger.debug(f'Loaded IR_ind')
+
+    def loadNpFiles(self, file):
+
+        RefImgs = np.load('RefImgs.npz')
+        self.IR_ref = RefImgs['IR_ref']
+        logger.debug(f'Loaded references')
+
+        self.IR_ind = RefImgs['IR_ind'] - 1
+        logger.debug(f'Loaded indices')
+
+        object = np.load(file)
+        self.IR_bin = object['IR_bin']
+        self.IR_now = object['IR_now']
+        logger.info(f'Loaded {file}')
 
     def computeDepthMap(self):
 
@@ -161,25 +175,21 @@ def configLogger():
     # fh.setFormatter(formatter)
     # logger.addHandler(fh)
 
-def mat2npz():
-    pass # TODO
-
 """
 MAIN
 """
 if __name__ == '__main__':
 
     configLogger()
-    
-    # ola = KinectSimulator(ImgRng = [1400, 2000])
-    ola = KinectSimulator()    
-    
-    ola.loadFiles(folder='../KinectSimulator')
-    c = ola.computeDepthMap()
 
-    ola.displayDepthMap(c, delay=1)
+    kinect = KinectSimulator()    
+    
+    kinect.loadNpFiles('Wall60deg.npz')
+    c = kinect.computeDepthMap()
 
-    pcd = ola.depthMap2PointCloud(c)    
-    ola.displayPointCloud(pcd)
+    kinect.displayDepthMap(c, delay=1)
+
+    pcd = kinect.depthMap2PointCloud(c)    
+    kinect.displayPointCloud(pcd)
     
     
