@@ -6,8 +6,8 @@
 """
 IMPORTS
 """
+import os
 import open3d as o3d
-from open3d import *
 import numpy as np
 import scipy.io as sio
 import cv2
@@ -57,20 +57,20 @@ class KinectSimulator:
 
         logger.info('Kinect Simulator ready')
 
-    def loadFiles(self):
-        
-        self.IR_bin = sio.loadmat('./IrBin.mat')['IR_bin']
-        logger.debug('Loaded IR_bin')
+    def loadFiles(self, folder='./'):
 
-        self.IR_now = sio.loadmat('./IrNow.mat')['IR_now']
-        logger.debug('Loaded IR_now')
+        self.IR_bin = sio.loadmat(os.path.join(folder, './IrBin.mat'))['IR_bin']
+        logger.debug(f'Loaded IR_bin from {folder}')
 
-        RefImgs = sio.loadmat('./RefImgs.mat')
+        self.IR_now = sio.loadmat(os.path.join(folder, './IrNow.mat'))['IR_now']
+        logger.debug(f'Loaded IR_now from {folder}')
+
+        RefImgs = sio.loadmat(os.path.join(folder, './RefImgs.mat'))
         self.IR_ref = RefImgs['IR_ref']
-        logger.debug('Loaded IR_ref')
+        logger.debug(f'Loaded IR_ref from {folder}')
 
         self.IR_ind = RefImgs['IR_ind'] - 1
-        logger.debug('Loaded IR_ind')
+        logger.debug(f'Loaded IR_ind from {folder}')
 
     def computeDepthMap(self):
 
@@ -131,7 +131,8 @@ class KinectSimulator:
         np.savez(filename, depth_map=depth_map)
 
     def displayDepthMap(self, depth_map, delay=0):
-        img = (depth_map / np.max(depth_map) * 255).astype('uint8')
+        # img = (depth_map / np.max(depth_map) * 255).astype('uint8')
+        img = ((depth_map - depth_map.min()) * (1/(depth_map.max() - depth_map.min()) * 255)).astype('uint8')
         cv2.imshow('Depth Map', img)
 
         logger.info('Press any key on image to continue')
@@ -170,13 +171,10 @@ if __name__ == '__main__':
 
     configLogger()
     
-    # ola = KinectSimulator(ImgRng = [400, 1000]) # teapod
-    # ola = KinectSimulator(ImgRng = [400, 4000]) # wall 60deg
-    # ola = KinectSimulator(ImgRng = [800, 854]) # grid box
-    ola = KinectSimulator()
+    # ola = KinectSimulator(ImgRng = [1400, 2000])
+    ola = KinectSimulator()    
     
-    
-    ola.loadFiles()
+    ola.loadFiles(folder='../KinectSimulator')
     c = ola.computeDepthMap()
 
     ola.displayDepthMap(c, delay=1)
