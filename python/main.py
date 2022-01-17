@@ -58,6 +58,16 @@ class KinectSimulator:
 
         logger.info('Kinect Simulator ready')
 
+    @staticmethod
+    def _scaleArray2uint8(array):
+        return ((array - array.min()) * (1/(array.max() - array.min()) * 255)).astype('uint8')
+
+    @staticmethod
+    def showArray(array, win_name='', delay=0):
+        img = KinectSimulator._scaleArray2uint8(array)
+        cv2.imshow(win_name, img)
+        cv2.waitKey(delay)
+
     def loadMatFiles(self, folder='./'):
 
         self.IR_bin = sio.loadmat(os.path.join(folder,'./IrBin.mat'))['IR_bin']
@@ -145,17 +155,9 @@ class KinectSimulator:
     def saveDepth(self, depth_map, filename='cloud.npz'):
         np.savez(filename, depth_map=depth_map)
 
-    def displayDepthMap(self, depth_map, delay=0):
-        # img = (depth_map / np.max(depth_map) * 255).astype('uint8')
-        img = ((depth_map - depth_map.min()) * (1/(depth_map.max() - depth_map.min()) * 255)).astype('uint8')
-        cv2.imshow('Depth Map', img)
-
-        logger.info('Press any key on image to continue')
-        cv2.waitKey(delay)
-
-    def displayPointCloud(self, point_cloud):
-        axes = o3d.geometry.TriangleMesh.create_coordinate_frame(500)
-        o3d.visualization.draw_geometries([point_cloud , axes])
+    def displayPointCloud(self, point_cloud, axis_size=500):
+        axes = o3d.geometry.TriangleMesh.create_coordinate_frame(axis_size)
+        o3d.visualization.draw_geometries([point_cloud , axes], window_name='Point Cloud')
 
 
 """
@@ -163,7 +165,7 @@ FUNCTIONS DEFINITIONS
 """
 def configLogger():
 
-    logger.setLevel(level=logging.DEBUG)
+    logger.propagate = False
 
     formatter = logging.Formatter('%(asctime)s [%(module)s | %(levelname)s]: %(message)s')
     ch = logging.StreamHandler()
@@ -190,11 +192,13 @@ if __name__ == '__main__':
     kinect = KinectSimulator()    
     
     kinect.loadNpFiles(args.file)
-    c = kinect.computeDepthMap()
+    depth_map = kinect.computeDepthMap()
 
-    kinect.displayDepthMap(c, delay=1)
+    kinect.showArray(depth_map, win_name='Depth Map', delay=100)
+    kinect.showArray(kinect.IR_now, win_name='Speakle Now', delay=100)
+    kinect.showArray(kinect.IR_bin, win_name='Speakle Bin', delay=100)
 
-    pcd = kinect.depthMap2PointCloud(c)    
+    pcd = kinect.depthMap2PointCloud(depth_map)    
     kinect.displayPointCloud(pcd)
     
     

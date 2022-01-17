@@ -79,12 +79,12 @@ if false
 end
 
 %% DEMO BOX GRID ==========================================================
-if false
-  load('example_CAD\BoxGrid.mat')
+if true
+  load('example_CAD/BoxGrid.mat')
 
-  box_width = 96;  % mm
-  box_depth = 54;  % mm
-  wallDist  = 854; % mm
+  box_width = 200;  % mm
+  box_depth = 500;  % mm
+  wallDist  = 2000; % mm
 
   % Scale size of box and shift grid to further depth
   vertex_grid = vertex;
@@ -96,11 +96,11 @@ if false
 
   [DpthImg,IR_now,IR_bin,IR_ref,IR_ind] = vc_KinectSimulator_Depth(vertex_grid,face_grid,norm_grid,...
     'simple','default','default',wallDist,'imgrng',GridRng,'quant11','off',...
-    'quant10','off','displayIR','on');
+    'quant10','off','displayIR','off');
       
-  save -mat7-binary 'IrBin.mat' 'IR_bin'
-  save -mat7-binary 'IrNow.mat' 'IR_now'
-  save -mat7-binary 'RefImgs.mat' 'IR_ref' 'IR_ind'
+  save 'IrBin.mat' 'IR_bin'
+  save 'IrNow.mat' 'IR_now'
+  %save -mat7-binary 'RefImgs.mat' 'IR_ref' 'IR_ind'
   
   figure, imshow(DpthImg,[])
   title('Noisy depth image of box grid in front of flat wall')
@@ -134,7 +134,7 @@ if false
 end
 
 %% DEMO XBOX CONTROLLER ===================================================
-if true
+if false
   load('example_CAD\XboxController.mat')
 
   % Shift CAD model to further depth
