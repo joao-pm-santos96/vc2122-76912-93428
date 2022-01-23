@@ -12,6 +12,7 @@ import open3d as o3d
 import numpy as np
 import scipy.io as sio
 import cv2
+import freenect
 
 import logging
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class KinectSimulator:
                 corrWind = [9, 9],
                 ImgRng = [800, 4000],
                 ImgFOV = [45.6, 58.5]):
-        
+
         self.nLev = nLev
         self.baseRT = baseRT
         self.ImgRes = ImgRes
@@ -97,6 +98,15 @@ class KinectSimulator:
         self.IR_now = object['IR_now']
         logger.info(f'Loaded {file}')
 
+    def getIr(self):
+        array, timestamp = freenect.sync_get_video(0, freenect.VIDEO_IR_10BIT)
+
+        self.IR_now = np.pad(array, pad_width=4, mode='constant', constant_values=0)
+        self.IR_bin = (self.IR_now > 50) * 1024
+
+        logger.info('Gathered IR frame')
+        freenect.sync_stop()
+
     def computeDepthMap(self):
 
         logger.info('Computing depth map')
@@ -104,7 +114,7 @@ class KinectSimulator:
         DEPTHimg = np.zeros(np.prod(self.ImgRes))
 
         for ipix in range(np.prod(self.ImgRes)):
-            
+
             # Binary window
             window_bin = self.IR_bin.reshape(-1, order='F')[self.IR_ind[:,ipix]]
 
@@ -122,7 +132,7 @@ class KinectSimulator:
                 # Maximize horizontal covariance
                 horzCov_ref = np.sum(np.multiply(snorm_ref, snorm_now), axis=0)
                 dispInd = np.argmax(horzCov_ref)
-                dispLookup = (dispInd) * self.nLev 
+                dispLookup = (dispInd) * self.nLev
 
                 # Sub-pixel refinement with noisy IR image
                 window_sub = self.IR_ref[self.IR_ind[:,ipix],:,dispInd]
@@ -142,7 +152,7 @@ class KinectSimulator:
 
     def depthMap2PointCloud(self, depth_map):
 
-        map_array = np.ascontiguousarray(depth_map, dtype=np.float32)    
+        map_array = np.ascontiguousarray(depth_map, dtype=np.float32)
         depth = o3d.geometry.Image(map_array)
 
         intrinsic = o3d.camera.PinholeCameraIntrinsic()
@@ -157,7 +167,7 @@ class KinectSimulator:
 
     def displayPointCloud(self, point_cloud, axis_size=500):
         axes = o3d.geometry.TriangleMesh.create_coordinate_frame(axis_size)
-        o3d.visualization.draw_geometries([point_cloud , axes], 
+        o3d.visualization.draw_geometries([point_cloud , axes],
                                     window_name='Point Cloud',
                                     front=[-0.24, -0.27, -0.9],
                                     lookat=[-25, -3.57, 2127.75],
@@ -183,6 +193,12 @@ def configLogger():
     # fh.setFormatter(formatter)
     # logger.addHandler(fh)
 
+def prettyDepth(depth):
+    np.clip(depth, 0, 2**10 - 1, depth)
+    depth >>= 2
+    depth = depth.astype(np.uint8)
+    return depth
+
 """
 MAIN
 """
@@ -191,19 +207,40 @@ if __name__ == '__main__':
     configLogger()
 
     parser = argparse.ArgumentParser(description='Build point clouds simulating the Kinect procedure.')
+    parser.add_argument('-s', '--sim', action='store_true', help='Use simulator.')
     parser.add_argument('-f', '--file', type=str, help='File (.npz) containing the object data.')
     args = parser.parse_args()
 
-    kinect = KinectSimulator()    
-    
-    kinect.loadNpFiles(args.file)
-    depth_map = kinect.computeDepthMap()
+    if args.sim:
+        kinect = KinectSimulator()
 
-    kinect.showArray(depth_map, win_name='Depth Map', delay=100)
-    kinect.showArray(kinect.IR_now, win_name='Speakle Now', delay=100)
-    kinect.showArray(kinect.IR_bin, win_name='Speakle Bin', delay=100)
+        kinect.loadNpFiles(args.file)
+        depth_map = kinect.computeDepthMap()
 
-    pcd = kinect.depthMap2PointCloud(depth_map)    
-    kinect.displayPointCloud(pcd)
+        kinect.showArray(depth_map, win_name='Depth Map', delay=100)
+        kinect.showArray(kinect.IR_now, win_name='Speakle Now', delay=100)
+        kinect.showArray(kinect.IR_bin, win_name='Speakle Bin', delay=100)
+
+        pcd = kinect.depthMap2PointCloud(depth_map)
+        kinect.displayPointCloud(pcd)
     
-    
+    else:
+        cv2.namedWindow('Depth')
+        cv2.namedWindow('Video')
+        cv2.namedWindow('IR')
+
+        logger.info('Press ESC in window to stop')
+
+        while True:
+            depth = freenect.sync_get_depth()[0]
+            cv2.imshow('Depth', prettyDepth(depth))
+
+            video = freenect.sync_get_video()[0]
+            cv2.imshow('Video', video[:, :, ::-1])
+
+            ir = freenect.sync_get_video(0, freenect.VIDEO_IR_10BIT)[0]
+            cv2.imshow('IR', prettyDepth(ir))
+
+            if cv2.waitKey(10) == 27:
+                break
+
