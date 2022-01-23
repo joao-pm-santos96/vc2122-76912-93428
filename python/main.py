@@ -174,7 +174,6 @@ class KinectSimulator:
                                     up=[0.23, -0.95, 0.22],
                                     zoom=0.7)
 
-
 """
 FUNCTIONS DEFINITIONS
 """
@@ -215,6 +214,7 @@ if __name__ == '__main__':
         kinect = KinectSimulator()
 
         kinect.loadNpFiles(args.file)
+        kinect.getIr()
         depth_map = kinect.computeDepthMap()
 
         kinect.showArray(depth_map, win_name='Depth Map', delay=100)
