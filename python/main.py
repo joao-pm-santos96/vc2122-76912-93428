@@ -208,13 +208,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build point clouds simulating the Kinect procedure.')
     parser.add_argument('-s', '--sim', action='store_true', help='Use simulator.')
     parser.add_argument('-f', '--file', type=str, help='File (.npz) containing the object data.')
+    parser.add_argument('-v', '--video', action='store_true', help='Gather video stream from the Kinect.')
+    parser.add_argument('-d', '--depth', action='store_true', help='Gather depth stream from the Kinect.')
+    parser.add_argument('-ir', '--infrared', action='store_true', help='Gather infrared (IR) stream from the Kinect.')
     args = parser.parse_args()
 
     if args.sim:
         kinect = KinectSimulator()
 
         kinect.loadNpFiles(args.file)
-        kinect.getIr()
         depth_map = kinect.computeDepthMap()
 
         kinect.showArray(depth_map, win_name='Depth Map', delay=100)
@@ -224,22 +226,32 @@ if __name__ == '__main__':
         pcd = kinect.depthMap2PointCloud(depth_map)
         kinect.displayPointCloud(pcd)
     
-    else:
-        cv2.namedWindow('Depth')
-        cv2.namedWindow('Video')
-        cv2.namedWindow('IR')
+    elif (args.video or args.depth or args.infrared):
+
+        if args.video:
+            cv2.namedWindow('Video')
+
+        if args.depth:
+            cv2.namedWindow('Depth')
+            
+        if args.infrared:
+            cv2.namedWindow('IR')
 
         logger.info('Press ESC in window to stop')
 
         while True:
-            depth = freenect.sync_get_depth()[0]
-            cv2.imshow('Depth', prettyDepth(depth))
 
-            video = freenect.sync_get_video()[0]
-            cv2.imshow('Video', video[:, :, ::-1])
+            if args.video:
+                video = freenect.sync_get_video()[0]
+                cv2.imshow('Video', video[:, :, ::-1])
 
-            ir = freenect.sync_get_video(0, freenect.VIDEO_IR_10BIT)[0]
-            cv2.imshow('IR', prettyDepth(ir))
+            if args.depth:
+                depth = freenect.sync_get_depth()[0]
+                cv2.imshow('Depth', prettyDepth(depth))
+
+            if args.infrared:
+                ir = freenect.sync_get_video(0, freenect.VIDEO_IR_10BIT)[0]
+                cv2.imshow('IR', prettyDepth(ir))
 
             if cv2.waitKey(10) == 27:
                 break
