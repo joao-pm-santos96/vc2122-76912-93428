@@ -196,7 +196,15 @@ def prettyDepth(depth):
     np.clip(depth, 0, 2**10 - 1, depth)
     depth >>= 2
     depth = depth.astype(np.uint8)
+    depth = cv2.applyColorMap(depth, cv2.COLORMAP_BONE)
     return depth
+
+def prettyIr(ir):
+    np.clip(ir, 0, 2**10 - 1, ir)
+    ir >>= 2
+    ir = ir.astype(np.uint8)
+    ir = cv2.cvtColor(ir, cv2.COLOR_GRAY2BGR)
+    return ir
 
 """
 MAIN
@@ -211,6 +219,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--video', action='store_true', help='Gather video stream from the Kinect.')
     parser.add_argument('-d', '--depth', action='store_true', help='Gather depth stream from the Kinect.')
     parser.add_argument('-ir', '--infrared', action='store_true', help='Gather infrared (IR) stream from the Kinect.')
+    parser.add_argument('-r', '--record', action='store_true', help='Record the streams to a file.')
     args = parser.parse_args()
 
     if args.sim:
@@ -228,14 +237,28 @@ if __name__ == '__main__':
     
     elif (args.video or args.depth or args.infrared):
 
+        # Define the codec and create VideoWriter object
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fps = 20.0
+        resolution = (640, 480)
+
         if args.video:
             cv2.namedWindow('Video')
 
+            if args.record:
+                out_rgb = cv2.VideoWriter('rgb.avi', fourcc, fps, resolution)
+
         if args.depth:
             cv2.namedWindow('Depth')
+
+            if args.record:
+                out_d = cv2.VideoWriter('depth.avi', fourcc, fps, resolution)
             
         if args.infrared:
             cv2.namedWindow('IR')
+
+            if args.record:
+                out_ir = cv2.VideoWriter('ir.avi', fourcc, fps, resolution)
 
         logger.info('Press ESC in window to stop')
 
@@ -243,16 +266,37 @@ if __name__ == '__main__':
 
             if args.video:
                 video = freenect.sync_get_video()[0]
-                cv2.imshow('Video', video[:, :, ::-1])
+                frame = video[:, :, ::-1]
+                cv2.imshow('Video', frame)
+
+                if args.record:
+                    out_rgb.write(frame)
 
             if args.depth:
                 depth = freenect.sync_get_depth()[0]
-                cv2.imshow('Depth', prettyDepth(depth))
+                frame = prettyDepth(depth)
+                cv2.imshow('Depth', frame)
+
+                if args.record:
+                    out_d.write(frame)
 
             if args.infrared:
                 ir = freenect.sync_get_video(0, freenect.VIDEO_IR_10BIT)[0]
-                cv2.imshow('IR', prettyDepth(ir))
+                frame = prettyIr(ir)
+                cv2.imshow('IR', frame)
 
-            if cv2.waitKey(10) == 27:
+                if args.record:
+                    out_ir.write(frame)
+
+            if cv2.waitKey(int(1000/fps)) == 27:
+                if args.record and args.video:
+                    out_rgb.release()
+
+                if args.record and args.depth:
+                    out_d.release()
+
+                if args.record and args.infrared:
+                    out_ir.release()
+
                 break
 
