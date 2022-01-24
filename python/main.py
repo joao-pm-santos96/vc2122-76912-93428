@@ -231,6 +231,7 @@ if __name__ == '__main__':
         kinect.showArray(depth_map, win_name='Depth Map', delay=100)
         kinect.showArray(kinect.IR_now, win_name='Speakle Now', delay=100)
         kinect.showArray(kinect.IR_bin, win_name='Speakle Bin', delay=100)
+        cv2.waitKey(0)
 
         pcd = kinect.depthMap2PointCloud(depth_map)
         kinect.displayPointCloud(pcd)
@@ -239,7 +240,7 @@ if __name__ == '__main__':
 
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        fps = 20.0
+        fps = 10.0
         resolution = (640, 480)
 
         if args.video:
