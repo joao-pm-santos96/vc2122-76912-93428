@@ -167,12 +167,13 @@ class KinectSimulator:
 
     def displayPointCloud(self, point_cloud, axis_size=500):
         axes = o3d.geometry.TriangleMesh.create_coordinate_frame(axis_size)
-        o3d.visualization.draw_geometries([point_cloud , axes],
-                                    window_name='Point Cloud',
-                                    front=[-0.24, -0.27, -0.9],
-                                    lookat=[-25, -3.57, 2127.75],
-                                    up=[0.23, -0.95, 0.22],
-                                    zoom=0.7)
+        # o3d.visualization.draw_geometries([point_cloud , axes],
+        #                             window_name='Point Cloud',
+        #                             front=[-0.24, -0.27, -0.9],
+        #                             lookat=[-25, -3.57, 2127.75],
+        #                             up=[0.23, -0.95, 0.22],
+        #                             zoom=0.7)
+        o3d.visualization.draw_geometries_with_animation_callback([point_cloud , axes], rotate_view)
 
 """
 FUNCTIONS DEFINITIONS
@@ -205,6 +206,12 @@ def prettyIr(ir):
     ir = ir.astype(np.uint8)
     ir = cv2.cvtColor(ir, cv2.COLOR_GRAY2BGR)
     return ir
+
+def rotate_view(vis):
+    ctr = vis.get_view_control()
+    ctr.set_up([0,-1,0])
+    ctr.rotate(5.0, 0.0)
+    return False
 
 """
 MAIN
