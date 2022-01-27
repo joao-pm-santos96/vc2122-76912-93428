@@ -167,13 +167,13 @@ class KinectSimulator:
 
     def displayPointCloud(self, point_cloud, axis_size=500):
         axes = o3d.geometry.TriangleMesh.create_coordinate_frame(axis_size)
-        # o3d.visualization.draw_geometries([point_cloud , axes],
-        #                             window_name='Point Cloud',
-        #                             front=[-0.24, -0.27, -0.9],
-        #                             lookat=[-25, -3.57, 2127.75],
-        #                             up=[0.23, -0.95, 0.22],
-        #                             zoom=0.7)
-        o3d.visualization.draw_geometries_with_animation_callback([point_cloud , axes], rotate_view)
+        o3d.visualization.draw_geometries([point_cloud , axes],
+                                    window_name='Point Cloud',
+                                    front=[-0.24, -0.27, -0.9],
+                                    lookat=[-25, -3.57, 2127.75],
+                                    up=[0.23, -0.95, 0.22],
+                                    zoom=0.7)
+        # o3d.visualization.draw_geometries_with_animation_callback([point_cloud , axes], rotate_view)
 
 """
 FUNCTIONS DEFINITIONS
